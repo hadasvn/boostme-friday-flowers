@@ -27,7 +27,7 @@
     --leaf-dark: #234F3B;
     --line: #F0E2E4;
     --radius: 24px;
-    --side: 400px; /* room kept free for the bouquet window on wide screens */
+    --side: 450px; /* room kept free for the bouquet window on wide screens */
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -58,8 +58,8 @@
   /* The bouquet window: a real photo of a bouquet that changes with each section, as the bouquet changes each week */
   .bouquet {
     position: fixed; left: max(24px, calc(50% - 560px)); top: 50%; transform: translateY(-50%);
-    width: 300px; aspect-ratio: 9 / 16; pointer-events: none; z-index: 20;
-    border-radius: 150px 150px 24px 24px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
+    --bw: min(380px, calc((100vh - 130px) * 9 / 16)); width: var(--bw); aspect-ratio: 9 / 16; pointer-events: none; z-index: 20;
+    border-radius: calc(var(--bw) / 2) calc(var(--bw) / 2) 24px 24px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
     box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
   }
   .bouquet canvas, .bouquet-mini canvas { display: block; width: 100%; height: 100%; }
