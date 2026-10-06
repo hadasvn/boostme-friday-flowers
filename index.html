@@ -160,18 +160,19 @@
        Its size and position are set by the script; .flower-slot is the place it starts from. */
     header { padding-block: 16px; }
     .bouquet { display: none; }
-    .flower-slot { display: block; width: min(220px, 60%); aspect-ratio: 1; margin: 30px auto 0; }
+    .flower-slot { display: block; width: min(210px, 78%); aspect-ratio: 1; margin: 30px auto 0; }
     .bouquet-mini {
       display: block; position: fixed; left: 0; top: 0; width: 84px; aspect-ratio: 1; z-index: 20; pointer-events: none;
       will-change: transform, width;
       border-radius: 50%; overflow: hidden; background: #DFDBD5 url("bloom-flower-first.webp") center / cover no-repeat;
       box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose), 0 10px 22px -8px rgba(51, 34, 58, .5);
     }
-    /* the strip the flower rests in: text below the hero keeps clear of it */
-    main > section:not(.hero) .wrap, footer .wrap { padding-left: 80px; }
+    /* the strip the flower rests in: the whole page keeps clear of it, so everything lines up on one edge */
+    h1 { font-size: 40px; }
+    main > section .wrap, footer .wrap { padding-left: 80px; }
     .btn { font-size: 19px; padding: 14px 22px; white-space: nowrap; }
     @media (max-width: 350px) {
-      main > section:not(.hero) .wrap, footer .wrap { padding-left: 60px; }
+      main > section .wrap, footer .wrap { padding-left: 60px; }
       .points li, .quotes li, .days li, .promise { padding-inline: 16px; }
       .btn { font-size: 17px; padding: 13px 16px; }
     }
