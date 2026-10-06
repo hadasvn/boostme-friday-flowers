@@ -77,6 +77,7 @@
   .who .wm { width: 330px; right: -100px; bottom: -110px; transform: rotate(14deg); }
   .proof .wm { width: 350px; right: -120px; top: -140px; transform: rotate(-18deg) scaleX(-1); }
   footer .wm { width: 230px; right: -64px; bottom: -78px; transform: rotate(10deg); opacity: .3; }
+  header .wm { display: none; }
   /* in the document windows it is a plain background that scrolls away with the text */
   dialog.long { background: #fff url("watercolor-bouquet-pale.webp") no-repeat left -48px top -52px / 190px auto local; }
 
@@ -169,6 +170,11 @@
     .who .wm { width: 230px; right: -72px; bottom: -80px; }
     .proof .wm { width: 240px; right: -84px; top: -100px; }
     footer .wm { width: 210px; right: -50px; bottom: -60px; }
+    /* small screens only: one more at the top, behind the brand name */
+    header { position: relative; }
+    header .wm { display: block; width: 210px; right: -62px; top: -46px; transform: rotate(16deg); }
+    header .wrap, .hero .wrap { position: relative; z-index: 1; }
+    .concept { position: relative; z-index: 2; }
     dialog.long { background-size: 120px auto; background-position: left -34px top -40px; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -183,6 +189,7 @@
 <p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים, והזר והאיורים נוצרו ב-AI.</p>
 
 <header>
+  <img class="wm" src="watercolor-bouquet.webp" alt="" aria-hidden="true" width="720" height="696">
   <div class="wrap">
     <span class="brand"><i aria-hidden="true"></i>שישי פורח</span>
   </div>
