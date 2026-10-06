@@ -160,12 +160,20 @@
     header { padding-block: 16px; }
     .bouquet { display: none; }
     .bouquet-mini {
-      display: block; position: fixed; left: 10px; bottom: 10px; width: 78px; aspect-ratio: 9 / 16; z-index: 20; pointer-events: none;
-      border-radius: 39px 39px 10px 10px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
+      display: block; position: fixed; left: 8px; bottom: 10px; width: 84px; aspect-ratio: 1; z-index: 20; pointer-events: none;
+      border-radius: 50%; overflow: hidden; background: #DFDBD5 url("bloom-flower-first.webp") center / cover no-repeat;
       box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose), 0 10px 22px -8px rgba(51, 34, 58, .5);
     }
-    @media (max-width: 350px) { .bouquet-mini { width: 60px; } }
-    footer { padding-bottom: 160px; }
+    /* the strip the flower floats in: text below the hero keeps clear of it */
+    main > section:not(.hero) .wrap, footer .wrap { padding-left: 80px; }
+    .btn { font-size: 19px; padding: 14px 22px; white-space: nowrap; }
+    @media (max-width: 350px) {
+      .bouquet-mini { width: 66px; left: 6px; }
+      main > section:not(.hero) .wrap, footer .wrap { padding-left: 60px; }
+      .points li, .quotes li, .days li, .promise { padding-inline: 16px; }
+      .btn { font-size: 17px; padding: 13px 16px; }
+      .hero .cta small { padding-left: 64px; }
+    }
     .days, .points { grid-template-columns: 1fr; }
     .who .wm { width: 230px; right: -72px; bottom: -80px; }
     .proof .wm { width: 240px; right: -84px; top: -100px; }
@@ -189,13 +197,14 @@
 <p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים, והזר והאיורים נוצרו ב-AI.</p>
 
 <!-- Decorative bouquet: 45 frames of a bouquet opening (bloom-video.webp, a 9x5 sprite sheet cut from an AI-generated video),
-     shown by the script at the end. Wide screens: the large one, fixed at the side. Small screens: the small one, floating in the corner.
+     shown by the script at the end. Wide screens: the bouquet, fixed at the side. Small screens: a single flower opening
+     (bloom-flower.webp, from a second AI-generated video), floating in a round frame in the corner.
      Both sit at the top level of the page, above every section. -->
 <div class="bouquet" aria-hidden="true">
   <canvas width="720" height="1280"></canvas>
 </div>
 <div class="bouquet-mini" aria-hidden="true">
-  <canvas width="360" height="640"></canvas>
+  <canvas width="252" height="252"></canvas>
 </div>
 
 <header>
@@ -400,30 +409,34 @@
     d.scrollTop = 0;
   }));
 
-  // The bouquet opens with the scroll: 45 frames of the opening, laid out as a 9x5 sprite sheet.
-  // How far the page has been scrolled picks the frame, so scrolling down opens the bouquet and scrolling back up closes it.
-  const FRAMES = 45, COLS = 9, TILE_W = 360, TILE_H = 640;
-  const canvases = [...document.querySelectorAll('.bouquet canvas, .bouquet-mini canvas')];
-  const sheet = new Image();
+  // Flowers that open with the scroll. Each is 45 frames laid out as a 9x5 sprite sheet, and the scroll position picks the frame,
+  // so scrolling down opens the flower and scrolling back up closes it.
+  // Wide screens show the bouquet at the side; small screens show a single flower in the corner. Only the one in use is downloaded.
+  const FRAMES = 45, COLS = 9;
+  const SETS = {
+    wide: { src: 'bloom-video.webp', canvas: document.querySelector('.bouquet canvas'), w: 360, h: 640, full: 0.55 },
+    small: { src: 'bloom-flower.webp', canvas: document.querySelector('.bouquet-mini canvas'), w: 240, h: 240, full: 0.7 }
+  };
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = matchMedia('(max-width: 900px)');
   const clamp = v => Math.max(0, Math.min(1, v));
   let shown = -1;
   function draw() {
-    if (!sheet.complete || !sheet.naturalWidth) return;
+    const set = small.matches ? SETS.small : SETS.wide;
+    if (!set.sheet) { set.sheet = new Image(); set.sheet.onload = () => { shown = -1; draw(); }; set.sheet.src = set.src; }
+    if (!set.sheet.complete || !set.sheet.naturalWidth) return;
     const max = document.documentElement.scrollHeight - innerHeight;
-    // wide screens: fully open by the middle of the page. Small screens: a little later, since the corner bouquet is there all the way.
-    const t = still ? 1 : clamp((max > 0 ? scrollY / max : 1) / (small.matches ? 0.7 : 0.55));
+    const t = still ? 1 : clamp((max > 0 ? scrollY / max : 1) / set.full); // full: how far down the page it is fully open
     const frame = Math.round(t * (FRAMES - 1));
     if (frame === shown) return;
     shown = frame;
-    for (const c of canvases) c.getContext('2d').drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, c.width, c.height);
+    const c = set.canvas;
+    c.getContext('2d').drawImage(set.sheet, (frame % COLS) * set.w, Math.floor(frame / COLS) * set.h, set.w, set.h, 0, 0, c.width, c.height);
   }
-  sheet.onload = draw;
-  sheet.src = 'bloom-video.webp';
   let queued = false;
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } }, { passive: true });
   addEventListener('resize', () => { shown = -1; draw(); });
+  draw();
 </script>
 </body>
 </html>
