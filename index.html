@@ -154,6 +154,7 @@
       opacity: 0; transform: translateY(16px); transition: opacity .3s, transform .3s;
     }
     .bouquet-mini.on { opacity: 1; transform: none; }
+    @media (max-width: 350px) { .bouquet-mini { width: 56px; } }
     footer { padding-bottom: 150px; }
     .days, .points { grid-template-columns: 1fr; }
   }
@@ -394,13 +395,21 @@
     shown = frame;
     for (const c of canvases) c.getContext('2d').drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, c.width, c.height);
   }
-  // the corner copy shows only while the large bouquet is off screen
-  new IntersectionObserver(([e]) => mini.classList.toggle('on', !e.isIntersecting)).observe(document.querySelector('.bouquet'));
+  // The corner copy takes over as soon as the flowers of the large bouquet have scrolled off the top,
+  // not only when the whole vase is gone, so there is never a stretch of page with no flowers in sight.
+  // Measured on every scroll rather than with an observer, so a jump back to the top always hides it again.
+  const big = document.querySelector('.bouquet');
+  function follow() {
+    const r = big.getBoundingClientRect();
+    const seen = Math.max(0, Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) / r.height;
+    mini.classList.toggle('on', r.top < 0 && seen < 0.75);
+  }
   sheet.onload = draw;
   sheet.src = 'bloom-video.webp';
   let queued = false;
-  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } }, { passive: true });
-  addEventListener('resize', () => { shown = -1; draw(); });
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); follow(); }); } }, { passive: true });
+  addEventListener('resize', () => { shown = -1; draw(); follow(); });
+  follow();
 </script>
 </body>
 </html>
