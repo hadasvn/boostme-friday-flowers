@@ -69,6 +69,17 @@
     background: var(--paper); color: var(--ink); font-weight: 700; font-size: 15px; padding: 3px 14px; border-radius: 999px;
   }
 
+  /* Watermark: a watercolor bouquet (AI-made, the paper whitened) that peeks in from a corner.
+     "multiply" lets the white paper vanish into whatever color is behind it. */
+  .wm { position: absolute; z-index: 0; height: auto; pointer-events: none; mix-blend-mode: multiply; opacity: .36; }
+  .who, .proof, footer { position: relative; overflow: hidden; }
+  .who .wrap, .proof .wrap, footer .wrap { position: relative; z-index: 1; }
+  .who .wm { width: 330px; right: -100px; bottom: -110px; transform: rotate(14deg); }
+  .proof .wm { width: 350px; right: -120px; top: -140px; transform: rotate(-18deg) scaleX(-1); }
+  footer .wm { width: 230px; right: -64px; bottom: -78px; transform: rotate(10deg); opacity: .3; }
+  /* in the document windows it is a plain background that scrolls away with the text */
+  dialog.long { background: #fff url("watercolor-bouquet-pale.webp") no-repeat left -48px top -52px / 190px auto local; }
+
   /* 1. Hero */
   .hero { padding-block: 36px 84px; }
   .tag { display: inline-block; background: var(--butter); border-radius: 999px; padding: 5px 18px; font-weight: 700; font-size: 16px; margin-bottom: 18px; }
@@ -155,6 +166,10 @@
     @media (max-width: 350px) { .bouquet-mini { width: 60px; } }
     footer { padding-bottom: 160px; }
     .days, .points { grid-template-columns: 1fr; }
+    .who .wm { width: 230px; right: -72px; bottom: -80px; }
+    .proof .wm { width: 240px; right: -84px; top: -100px; }
+    footer .wm { width: 210px; right: -50px; bottom: -60px; }
+    dialog.long { background-size: 120px auto; background-position: left -34px top -40px; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -165,7 +180,7 @@
 <body>
 
 <a class="skip" href="#main">דילוג לתוכן הראשי</a>
-<p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים, והזר נוצר ב-AI.</p>
+<p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים, והזר והאיורים נוצרו ב-AI.</p>
 
 <header>
   <div class="wrap">
@@ -201,6 +216,7 @@
 
   <!-- 2. Who -->
   <section class="who" aria-labelledby="h-who">
+    <img class="wm" src="watercolor-bouquet.webp" alt="" aria-hidden="true" loading="lazy" width="720" height="696">
     <div class="wrap">
       <h2 id="h-who">נעים מאוד, מיכל</h2>
       <p>גדלתי בבית שבו בכל שישי היו פרחים על השולחן. אמא שלי הייתה אומרת שבלי פרחים זה עוד יום רגיל.</p>
@@ -235,6 +251,7 @@
 
   <!-- 4. Proof -->
   <section class="proof" aria-labelledby="h-proof">
+    <img class="wm" src="watercolor-bouquet.webp" alt="" aria-hidden="true" loading="lazy" width="720" height="696">
     <div class="wrap">
       <h2 id="h-proof">מה זה עושה לבית</h2>
       <ul class="quotes">
@@ -264,6 +281,7 @@
 
 <!-- 6. Links + footer -->
 <footer>
+  <img class="wm" src="watercolor-bouquet.webp" alt="" aria-hidden="true" loading="lazy" width="720" height="696">
   <div class="wrap">
     <span class="brand"><i aria-hidden="true"></i>שישי פורח</span>
     <nav aria-label="קישורי פוטר">
