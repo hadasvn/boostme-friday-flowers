@@ -113,7 +113,8 @@
   .points li { border-radius: var(--radius); padding: 24px; background: var(--butter); }
   .points li:nth-child(2) { background: var(--sage); }
   .points li:nth-child(3) { background: var(--lilac); }
-  .points li:nth-child(4) { background: var(--rose); color: #fff; }
+  .points li:nth-child(4) { background: var(--peach); }
+  .points li.price-card { grid-column: 1 / -1; background: var(--rose); color: #fff; }
   .points li.custom { grid-column: 1 / -1; background: var(--blush); }
   .points h3 { font-size: 23px; margin-bottom: 6px; }
   .points p { font-size: 17px; line-height: 1.5; }
@@ -261,11 +262,12 @@
       <h2 id="h-offer">מה מחכה לכם בכל שישי</h2>
       <img class="product" src="bouquet-photo.webp" alt="זר של צבעונים, אדמוניות ונוריות בוורוד ושמנת, באגרטל לבן" loading="lazy" width="420" height="560">
       <ul class="points">
-        <li><h3>הפתעה קטנה בכל שבוע</h3><p>אף פעם לא אותו זר. מה שהכי יפה אצל המגדלים באותו שבוע.</p></li>
+        <li><h3>הפתעה קטנה בכל שבוע</h3><p>אם לא ביקשתם אחרת: אף פעם לא אותו זר, מה שהכי יפה אצל המגדלים באותו שבוע.</p></li>
         <li><h3>בוקר שמתחיל בהודעה</h3><p>"הזר בדרך", ואחריה תמונה שלו מחכה לכם ליד הדלת.</p></li>
         <li><h3>שבוע שלם של פריחה</h3><p>ניצנים שנפתחים על השולחן מיום ליום, עד השישי הבא.</p></li>
-        <li><span class="price">120 ₪</span><h3>לזר, כולל משלוח</h3><p>בחודש של ארבעה ימי שישי זה 480 ₪. החיוב בסוף החודש, רק על זרים שהגיעו. נוסעים? מדלגים בהודעה עד רביעי בערב.</p></li>
+        <li><h3>נוסעים? מדלגים</h3><p>הודעה עד רביעי בערב, והשבוע הזה לא מחויב.</p></li>
         <li class="custom"><h3>זר לפי בקשתך</h3><p>רוצים צבע מסוים, או פרחים שאתם הכי אוהבים? כתבו בהודעה ונתאים את הזר, לפי מה שיש אצל המגדלים באותו שבוע.</p></li>
+        <li class="price-card"><span class="price">120 ₪</span><h3>לזר, כולל משלוח</h3><p>בחודש של ארבעה ימי שישי זה 480 ₪. החיוב בסוף החודש, רק על זרים שהגיעו.</p></li>
       </ul>
       <div class="cta">
         <a class="btn wa" href="#">
