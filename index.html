@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שישי פורח — פרחים ליד הדלת, כל שישי בבוקר</title>
+<meta name="description" content="שישי בבוקר, ויש פרחים ליד הדלת. מנוי זר שבועי בשרון: 120 ₪ כולל משלוח, בלי התחייבות, מדלגים בהודעה.">
+<meta property="og:title" content="שישי פורח — פרחים ליד הדלת, כל שישי בבוקר">
+<meta property="og:description" content="שישי בבוקר. פרחים ליד הדלת. ככה, כל שבוע.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* Soft pastels: the bouquets carry the color, the page stays light around them. */
+  :root {
+    --paper: #FFFBF8;
+    --ink: #33223A;
+    --ink-soft: #5E4D63;
+    --rose: #B03E66;
+    --blush: #FBE3E8;
+    --peach: #FFE8D9;
+    --sage: #E3EFE2;
+    --butter: #FFF3C9;
+    --lilac: #ECE6F7;
+    --leaf: #2F6B4F;
+    --leaf-dark: #234F3B;
+    --line: #F0E2E4;
+    --radius: 24px;
+    --side: 400px; /* room kept free for the bouquet window on wide screens */
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Assistant, system-ui, sans-serif;
+    font-size: 19px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: "Frank Ruhl Libre", Assistant, serif; font-weight: 700; line-height: 1.15; margin: 0; }
+  p { margin: 0; }
+  :focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; border-radius: 8px; }
+  .skip { position: absolute; inset-inline-start: 12px; top: -60px; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 8px; z-index: 10; }
+  .skip:focus { top: 12px; }
+
+  /* Content sits on the right; the left side stays free for the bouquet window. */
+  .wrap { width: min(1120px, 100% - 40px); margin-inline: auto; padding-left: var(--side); }
+  section { padding-block: 72px; }
+
+  .concept { background: var(--blush); color: var(--ink); font-size: 14px; text-align: center; padding: 8px 16px; }
+  header { padding-block: 22px; }
+  .brand { font-family: "Frank Ruhl Libre", serif; font-weight: 700; font-size: 26px; display: inline-flex; align-items: center; gap: 10px; }
+  .brand i { width: 14px; height: 14px; border-radius: 50%; background: var(--rose); box-shadow: 0 0 0 5px var(--blush); font-style: normal; }
+
+  /* The bouquet window: a real photo of a bouquet that changes with each section, as the bouquet changes each week */
+  .bouquet {
+    position: fixed; left: max(24px, calc(50% - 560px)); top: 50%; transform: translateY(-50%);
+    width: 300px; aspect-ratio: 9 / 16; pointer-events: none; z-index: 1;
+    border-radius: 150px 150px 24px 24px; overflow: hidden; background: #D8D6D3;
+    box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
+  }
+  .bouquet canvas { display: block; width: 100%; height: 100%; }
+  .bouquet span {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap;
+    background: var(--paper); color: var(--ink); font-weight: 700; font-size: 15px; padding: 3px 14px; border-radius: 999px;
+  }
+
+  /* 1. Hero */
+  .hero { padding-block: 36px 84px; }
+  .tag { display: inline-block; background: var(--butter); border-radius: 999px; padding: 5px 18px; font-weight: 700; font-size: 16px; margin-bottom: 18px; }
+  h1 { font-size: clamp(46px, 7vw, 84px); }
+  h1 em { font-style: normal; color: var(--rose); }
+  .lead { font-size: clamp(21px, 2.6vw, 25px); color: var(--ink-soft); margin-top: 18px; max-width: 26em; }
+  .cta { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
+    font: inherit; font-weight: 700; font-size: 21px; cursor: pointer;
+    background: var(--leaf); color: #fff; border: 0; border-radius: 999px; padding: 15px 30px;
+    box-shadow: 0 6px 0 var(--leaf-dark);
+    transition: transform .12s, box-shadow .12s;
+  }
+  .btn:hover { transform: translateY(2px); box-shadow: 0 4px 0 var(--leaf-dark); }
+  .btn svg { width: 24px; height: 24px; flex: none; }
+  .cta small { font-size: 16px; color: var(--ink-soft); }
+
+  /* 2. Who */
+  .who { background: var(--blush); }
+  h2 { font-size: clamp(32px, 4.6vw, 46px); margin-bottom: 16px; }
+  .who p { max-width: 30em; }
+  .who p + p { margin-top: 12px; }
+  .days { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .days li { background: var(--paper); border-radius: 18px; padding: 16px 18px; font-size: 17px; line-height: 1.45; }
+  .days b { display: block; font-family: "Frank Ruhl Libre", serif; font-size: 21px; color: var(--rose); }
+
+  /* 3. Offer */
+  .points { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .points li { border-radius: var(--radius); padding: 24px; background: var(--butter); }
+  .points li:nth-child(2) { background: var(--sage); }
+  .points li:nth-child(3) { background: var(--lilac); }
+  .points li:nth-child(4) { background: var(--rose); color: #fff; }
+  .points h3 { font-size: 23px; margin-bottom: 6px; }
+  .points p { font-size: 17px; line-height: 1.5; }
+  .price { font-family: "Frank Ruhl Libre", serif; font-weight: 700; font-size: 42px; line-height: 1; display: block; margin-bottom: 6px; }
+
+  /* 4. Proof */
+  .proof { background: var(--peach); }
+  .quotes { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 14px; }
+  .quotes li { background: var(--paper); border-radius: 18px; padding: 20px 24px; }
+  .quotes blockquote { margin: 0; font-size: 20px; line-height: 1.5; }
+  .quotes blockquote::before { content: "״"; font-family: "Frank Ruhl Libre", serif; font-weight: 700; font-size: 34px; line-height: 0; color: var(--rose); margin-inline-end: 4px; vertical-align: -8px; }
+  .quotes cite { display: block; margin-top: 8px; font-style: normal; font-weight: 700; font-size: 16px; color: var(--ink-soft); }
+  .promise { margin-top: 18px; background: var(--rose); color: #fff; border-radius: 18px; padding: 16px 24px; font-size: 20px; }
+
+  /* 5. Repeat CTA */
+  .again h2 { margin-bottom: 8px; }
+  .again p { color: var(--ink-soft); max-width: 28em; }
+
+  /* 6. Footer */
+  footer { border-top: 2px solid var(--line); padding-block: 30px 44px; font-size: 16px; color: var(--ink-soft); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: center; justify-content: space-between; }
+  footer .brand { color: var(--ink); font-size: 21px; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+  footer button { font: inherit; background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; }
+  footer .small { flex-basis: 100%; font-size: 15px; }
+
+  dialog { border: 0; border-radius: var(--radius); padding: 28px; max-width: min(440px, 100% - 40px); color: var(--ink); font: inherit; }
+  dialog::backdrop { background: rgba(51, 34, 58, .55); }
+  dialog h2 { font-size: 24px; margin-bottom: 10px; }
+  dialog .btn { margin-top: 18px; font-size: 18px; padding: 10px 24px; }
+
+  @media (max-width: 900px) {
+    body { font-size: 18px; }
+    .wrap { padding-left: 0; }
+    section { padding-block: 52px; }
+    .hero { padding-block: 24px 60px; }
+    /* Small screens: the header sticks to the top and a small bouquet window sits inside it */
+    header { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 2px solid var(--line); padding-block: 0; }
+    header .wrap { height: 96px; display: flex; align-items: center; }
+    .bouquet { position: absolute; width: 48px; left: 18px; top: 5px; transform: none; border-radius: 24px 24px 8px 8px; box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose); }
+    .bouquet span { display: none; }
+    .days, .points { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">דילוג לתוכן הראשי</a>
+<p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים.</p>
+
+<header>
+  <div class="wrap">
+    <span class="brand"><i aria-hidden="true"></i>שישי פורח</span>
+  </div>
+  <!-- Decorative bouquet window: 60 frames of a bouquet opening (bloom-video.webp, a 10x6 sprite sheet cut from an
+       AI-generated video). The script below shows the frame that matches the scroll position. -->
+  <div class="bouquet" aria-hidden="true">
+    <canvas width="720" height="1280"></canvas>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- 1. Hero: offer + primary CTA -->
+  <section class="hero" aria-labelledby="h-hero">
+    <div class="wrap">
+      <span class="tag">מנוי פרחים שבועי בשרון</span>
+      <h1 id="h-hero">שישי בבוקר.<br><em>פרחים ליד הדלת.</em></h1>
+      <p class="lead">מכניסים אותם, ממלאים אגרטל, והבית כבר מרגיש כמו שבת. ככה, כל שבוע, בלי שצריך לזכור.</p>
+      <div class="cta">
+        <a class="btn wa" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.8c0 2.3 1 4.4 2.7 6L4 22l4.6-1.9c1.1.3 2.2.5 3.4.5 5.5 0 10-3.9 10-8.8S17.5 3 12 3Z"/></svg>
+          מצטרפים בוואטסאפ
+        </a>
+        <small>120 ₪ לזר, כולל משלוח. בלי התחייבות.</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Who -->
+  <section class="who" aria-labelledby="h-who">
+    <div class="wrap">
+      <h2 id="h-who">נעים מאוד, מיכל</h2>
+      <p>גדלתי בבית שבו בכל שישי היו פרחים על השולחן. אמא שלי הייתה אומרת שבלי פרחים זה עוד יום רגיל.</p>
+      <p>היום אני שוזרת זרים בכפר סבא, ורוצה שלעוד בתים יהיה שישי כזה. אז אני מביאה את הפרחים עד אליכם.</p>
+      <ol class="days">
+        <li><b>חמישי</b>קונה מהמגדלים רק את מה שהוזמן.</li>
+        <li><b>שישי בבוקר</b>שוזרת זר לכל בית.</li>
+        <li><b>עד 13:00</b>הזר מחכה ליד הדלת.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3. Offer -->
+  <section class="offer" aria-labelledby="h-offer">
+    <div class="wrap">
+      <h2 id="h-offer">מה מחכה לכם בכל שישי</h2>
+      <ul class="points">
+        <li><h3>הפתעה קטנה בכל שבוע</h3><p>אף פעם לא אותו זר. מה שהכי יפה אצל המגדלים באותו שבוע.</p></li>
+        <li><h3>בוקר שמתחיל בהודעה</h3><p>"הזר בדרך", ואחריה תמונה שלו מחכה לכם ליד הדלת.</p></li>
+        <li><h3>שבוע שלם של פריחה</h3><p>ניצנים שנפתחים על השולחן מיום ליום, עד השישי הבא.</p></li>
+        <li><span class="price">120 ₪</span><h3>לזר, כולל משלוח</h3><p>משלמים רק על זר שהגיע. נוסעים? מדלגים בהודעה עד רביעי בערב.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. Proof -->
+  <section class="proof" aria-labelledby="h-proof">
+    <div class="wrap">
+      <h2 id="h-proof">מה זה עושה לבית</h2>
+      <ul class="quotes">
+        <li><blockquote>הבת שלי רצה לדלת כל שישי לראות מה הגיע. זה נהיה הטקס שלנו.</blockquote><cite>נטע, רעננה</cite></li>
+        <li><blockquote>הזמנתי מנוי לאמא שלי. היא מתקשרת כל שישי לספר לי אילו פרחים קיבלה.</blockquote><cite>יואב, הוד השרון</cite></li>
+        <li><blockquote>אני גרה לבד, ובשישי בבוקר מישהו מביא לי פרחים. אז מה אם זאת אני.</blockquote><cite>דנה, כפר סבא</cite></li>
+      </ul>
+      <p class="promise"><b>וההבטחה שלי:</b> הזר לא החזיק חמישה ימים? הזר הבא עליי.</p>
+    </div>
+  </section>
+
+  <!-- 5. Repeat CTA -->
+  <section class="again" aria-labelledby="h-again">
+    <div class="wrap">
+      <h2 id="h-again">שישי הקרוב, עם פרחים ליד הדלת?</h2>
+      <p>מצטרפים עד רביעי בערב, והזר הראשון מגיע כבר בשישי הזה.</p>
+      <div class="cta">
+        <a class="btn wa" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.8c0 2.3 1 4.4 2.7 6L4 22l4.6-1.9c1.1.3 2.2.5 3.4.5 5.5 0 10-3.9 10-8.8S17.5 3 12 3Z"/></svg>
+          מצטרפים בוואטסאפ
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 6. Links + footer -->
+<footer>
+  <div class="wrap">
+    <span class="brand"><i aria-hidden="true"></i>שישי פורח</span>
+    <nav aria-label="קישורי פוטר">
+      <button type="button" data-doc="הצהרת נגישות">הצהרת נגישות</button>
+      <button type="button" data-doc="מדיניות פרטיות">מדיניות פרטיות</button>
+      <button type="button" data-doc="תנאי שימוש">תנאי שימוש</button>
+    </nav>
+    <p class="small">שישי פורח, כפר סבא · משלוחים ברעננה, בכפר סבא, בהוד השרון ובהרצליה</p>
+    <p class="small">© 2026 שישי פורח · דף קונספט לדוגמה של Boost Me</p>
+  </div>
+</footer>
+
+<dialog id="doc" aria-labelledby="doc-title">
+  <h2 id="doc-title"></h2>
+  <p>זה דף קונספט, ולכן אין כאן מסמך אמיתי. בדף של עסק אמיתי הקישור הזה מוביל למסמך מלא.</p>
+  <form method="dialog"><button class="btn">הבנתי</button></form>
+</dialog>
+
+<script>
+  // WhatsApp: a concept page has no real number, so the link opens WhatsApp with the message ready and no recipient.
+  const WA_TEXT = 'היי מיכל, אשמח להצטרף למנוי הפרחים של שישי פורח 🌷';
+  document.querySelectorAll('.btn.wa').forEach(a => {
+    a.href = 'https://wa.me/?text=' + encodeURIComponent(WA_TEXT);
+    a.target = '_blank';
+    a.rel = 'noopener';
+  });
+
+  const doc = document.getElementById('doc');
+  document.querySelectorAll('footer [data-doc]').forEach(b => b.addEventListener('click', () => {
+    document.getElementById('doc-title').textContent = b.dataset.doc;
+    doc.showModal();
+  }));
+
+  // The bouquet opens with the scroll: 60 frames of the opening, laid out as a 10x6 sprite sheet.
+  // The scroll position picks the frame, so scrolling down opens the bouquet and scrolling back up closes it.
+  const FRAMES = 60, COLS = 10, TILE_W = 360, TILE_H = 640;
+  const canvas = document.querySelector('.bouquet canvas'), ctx = canvas.getContext('2d');
+  const sheet = new Image();
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = v => Math.max(0, Math.min(1, v));
+  let shown = -1;
+  function draw() {
+    if (!sheet.complete || !sheet.naturalWidth) return;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    // fully open a little before the end, when the second CTA comes into view
+    const t = still ? 1 : clamp((max > 0 ? scrollY / max : 1) / 0.8);
+    const frame = Math.round(t * (FRAMES - 1));
+    if (frame === shown) return;
+    shown = frame;
+    ctx.drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, canvas.width, canvas.height);
+  }
+  sheet.onload = draw;
+  sheet.src = 'bloom-video.webp';
+  let queued = false;
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } }, { passive: true });
+  addEventListener('resize', draw);
+</script>
+</body>
+</html>
