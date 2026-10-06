@@ -143,24 +143,22 @@
     .wrap { padding-left: 0; }
     section { padding-block: 52px; }
     .hero { padding-block: 24px 60px; }
-    /* Small screens: the bouquet sits in the hero, large, under the button, and opens as it scrolls into view */
+    /* Small screens: there is no room for the large bouquet, so a small one floats in the corner
+       from the first screen to the last and opens as the page scrolls */
     header { padding-block: 16px; }
-    .bouquet { position: static; transform: none; width: min(250px, 68%); margin: 44px auto 0; border-radius: 125px 125px 20px 20px; }
-    /* ...and once it has scrolled away, a small copy follows in the corner and keeps opening */
+    .bouquet { display: none; }
     .bouquet-mini {
-      display: block; position: fixed; left: 10px; bottom: 10px; width: 70px; aspect-ratio: 9 / 16; z-index: 4; pointer-events: none;
-      border-radius: 35px 35px 10px 10px; overflow: hidden; background: #D8D6D3;
+      display: block; position: fixed; left: 10px; bottom: 10px; width: 78px; aspect-ratio: 9 / 16; z-index: 4; pointer-events: none;
+      border-radius: 39px 39px 10px 10px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
       box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose), 0 10px 22px -8px rgba(51, 34, 58, .5);
-      opacity: 0; transform: translateY(16px); transition: opacity .3s, transform .3s;
     }
-    .bouquet-mini.on { opacity: 1; transform: none; }
-    @media (max-width: 350px) { .bouquet-mini { width: 56px; } }
-    footer { padding-bottom: 150px; }
+    @media (max-width: 350px) { .bouquet-mini { width: 60px; } }
+    footer { padding-bottom: 160px; }
     .days, .points { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .btn, .bouquet-mini { transition: none; }
+    .btn { transition: none; }
   }
 </style>
 </head>
@@ -191,7 +189,7 @@
         <small>120 ₪ לזר, כולל משלוח. בלי התחייבות.</small>
       </div>
       <!-- Decorative bouquet: 45 frames of a bouquet opening (bloom-video.webp, a 9x5 sprite sheet cut from an AI-generated
-           video), shown by the script below. Wide screens: fixed at the side. Small screens: large, right here in the hero. -->
+           video), shown by the script below. Wide screens: the large one, fixed at the side. Small screens: the small one, floating in the corner. -->
       <div class="bouquet" aria-hidden="true">
         <canvas width="720" height="1280"></canvas>
       </div>
@@ -379,7 +377,6 @@
   // How far the page has been scrolled picks the frame, so scrolling down opens the bouquet and scrolling back up closes it.
   const FRAMES = 45, COLS = 9, TILE_W = 360, TILE_H = 640;
   const canvases = [...document.querySelectorAll('.bouquet canvas, .bouquet-mini canvas')];
-  const mini = document.querySelector('.bouquet-mini');
   const sheet = new Image();
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = matchMedia('(max-width: 900px)');
@@ -388,28 +385,18 @@
   function draw() {
     if (!sheet.complete || !sheet.naturalWidth) return;
     const max = document.documentElement.scrollHeight - innerHeight;
-    // wide screens: fully open by the middle of the page. Small screens: a little later, so the corner copy keeps opening.
+    // wide screens: fully open by the middle of the page. Small screens: a little later, since the corner bouquet is there all the way.
     const t = still ? 1 : clamp((max > 0 ? scrollY / max : 1) / (small.matches ? 0.7 : 0.55));
     const frame = Math.round(t * (FRAMES - 1));
     if (frame === shown) return;
     shown = frame;
     for (const c of canvases) c.getContext('2d').drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, c.width, c.height);
   }
-  // The corner copy takes over as soon as the flowers of the large bouquet have scrolled off the top,
-  // not only when the whole vase is gone, so there is never a stretch of page with no flowers in sight.
-  // Measured on every scroll rather than with an observer, so a jump back to the top always hides it again.
-  const big = document.querySelector('.bouquet');
-  function follow() {
-    const r = big.getBoundingClientRect();
-    const seen = Math.max(0, Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) / r.height;
-    mini.classList.toggle('on', r.top < 0 && seen < 0.75);
-  }
   sheet.onload = draw;
   sheet.src = 'bloom-video.webp';
   let queued = false;
-  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); follow(); }); } }, { passive: true });
-  addEventListener('resize', () => { shown = -1; draw(); follow(); });
-  follow();
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } }, { passive: true });
+  addEventListener('resize', () => { shown = -1; draw(); });
 </script>
 </body>
 </html>
