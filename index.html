@@ -58,7 +58,7 @@
   .bouquet {
     position: fixed; left: max(24px, calc(50% - 560px)); top: 50%; transform: translateY(-50%);
     width: 300px; aspect-ratio: 9 / 16; pointer-events: none; z-index: 1;
-    border-radius: 150px 150px 24px 24px; overflow: hidden; background: #D8D6D3;
+    border-radius: 150px 150px 24px 24px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
     box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
   }
   .bouquet canvas { display: block; width: 100%; height: 100%; }
@@ -135,11 +135,9 @@
     .wrap { padding-left: 0; }
     section { padding-block: 52px; }
     .hero { padding-block: 24px 60px; }
-    /* Small screens: the header sticks to the top and a small bouquet window sits inside it */
-    header { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 2px solid var(--line); padding-block: 0; }
-    header .wrap { height: 96px; display: flex; align-items: center; }
-    .bouquet { position: absolute; width: 48px; left: 18px; top: 5px; transform: none; border-radius: 24px 24px 8px 8px; box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose); }
-    .bouquet span { display: none; }
+    /* Small screens: the bouquet sits in the hero, large, under the button, and opens as it scrolls into view */
+    header { padding-block: 16px; }
+    .bouquet { position: static; transform: none; width: min(250px, 68%); margin: 44px auto 0; border-radius: 125px 125px 20px 20px; }
     .days, .points { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -151,16 +149,11 @@
 <body>
 
 <a class="skip" href="#main">דילוג לתוכן הראשי</a>
-<p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים.</p>
+<p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים, והזר נוצר ב-AI.</p>
 
 <header>
   <div class="wrap">
     <span class="brand"><i aria-hidden="true"></i>שישי פורח</span>
-  </div>
-  <!-- Decorative bouquet window: 60 frames of a bouquet opening (bloom-video.webp, a 10x6 sprite sheet cut from an
-       AI-generated video). The script below shows the frame that matches the scroll position. -->
-  <div class="bouquet" aria-hidden="true">
-    <canvas width="720" height="1280"></canvas>
   </div>
 </header>
 
@@ -178,6 +171,11 @@
           מצטרפים בוואטסאפ
         </a>
         <small>120 ₪ לזר, כולל משלוח. בלי התחייבות.</small>
+      </div>
+      <!-- Decorative bouquet: 45 frames of a bouquet opening (bloom-video.webp, a 9x5 sprite sheet cut from an AI-generated
+           video), shown by the script below. Wide screens: fixed at the side. Small screens: large, right here in the hero. -->
+      <div class="bouquet" aria-hidden="true">
+        <canvas width="720" height="1280"></canvas>
       </div>
     </div>
   </section>
@@ -273,20 +271,29 @@
     doc.showModal();
   }));
 
-  // The bouquet opens with the scroll: 60 frames of the opening, laid out as a 10x6 sprite sheet.
+  // The bouquet opens with the scroll: 45 frames of the opening, laid out as a 9x5 sprite sheet.
   // The scroll position picks the frame, so scrolling down opens the bouquet and scrolling back up closes it.
-  const FRAMES = 60, COLS = 10, TILE_W = 360, TILE_H = 640;
+  const FRAMES = 45, COLS = 9, TILE_W = 360, TILE_H = 640;
   const canvas = document.querySelector('.bouquet canvas'), ctx = canvas.getContext('2d');
   const sheet = new Image();
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = v => Math.max(0, Math.min(1, v));
+  const small = matchMedia('(max-width: 900px)');
   let shown = -1;
+  function progress() {
+    if (still) return 1;
+    if (small.matches) {
+      // small screens: the bouquet is part of the page, so it opens while it travels up the screen
+      const top = canvas.getBoundingClientRect().top;
+      return clamp((innerHeight - top) / (innerHeight * 0.88));
+    }
+    // wide screens: the bouquet is fixed at the side and is fully open by the middle of the page
+    const max = document.documentElement.scrollHeight - innerHeight;
+    return clamp((max > 0 ? scrollY / max : 1) / 0.55);
+  }
   function draw() {
     if (!sheet.complete || !sheet.naturalWidth) return;
-    const max = document.documentElement.scrollHeight - innerHeight;
-    // fully open a little before the end, when the second CTA comes into view
-    const t = still ? 1 : clamp((max > 0 ? scrollY / max : 1) / 0.8);
-    const frame = Math.round(t * (FRAMES - 1));
+    const frame = Math.round(progress() * (FRAMES - 1));
     if (frame === shown) return;
     shown = frame;
     ctx.drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, canvas.width, canvas.height);
@@ -296,6 +303,7 @@
   let queued = false;
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } }, { passive: true });
   addEventListener('resize', draw);
+  small.addEventListener('change', () => { shown = -1; draw(); });
 </script>
 </body>
 </html>
