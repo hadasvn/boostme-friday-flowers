@@ -63,7 +63,7 @@
     box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
   }
   .bouquet canvas, .bouquet-mini canvas { display: block; width: 100%; height: 100%; }
-  .bouquet-mini, .flower-slot { display: none; }
+  .bouquet-mini, .flower-slot, .product { display: none; }
   .bouquet span {
     position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap;
     background: var(--paper); color: var(--ink); font-weight: 700; font-size: 15px; padding: 3px 14px; border-radius: 999px;
@@ -160,6 +160,11 @@
        Its size and position are set by the script; .flower-slot is the place it starts from. */
     header { padding-block: 16px; }
     .bouquet { display: none; }
+    /* the product itself, in the same arched frame the bouquet has on wide screens */
+    .product {
+      display: block; width: min(190px, 72%); height: auto; aspect-ratio: 3 / 4; object-fit: cover; margin: 6px auto 4px;
+      border-radius: 95px 95px 18px 18px; box-shadow: 0 0 0 5px var(--paper), 0 0 0 7px var(--rose), 0 18px 30px -18px rgba(51, 34, 58, .45);
+    }
     .flower-slot { display: block; width: min(210px, 78%); aspect-ratio: 1; margin: 30px auto 0; }
     .bouquet-mini {
       display: block; position: fixed; left: 0; top: 0; width: 84px; aspect-ratio: 1; z-index: 20; pointer-events: none;
@@ -254,6 +259,7 @@
   <section class="offer" aria-labelledby="h-offer">
     <div class="wrap">
       <h2 id="h-offer">מה מחכה לכם בכל שישי</h2>
+      <img class="product" src="bouquet-photo.webp" alt="זר של צבעונים, אדמוניות ונוריות בוורוד ושמנת, באגרטל לבן" loading="lazy" width="420" height="560">
       <ul class="points">
         <li><h3>הפתעה קטנה בכל שבוע</h3><p>אף פעם לא אותו זר. מה שהכי יפה אצל המגדלים באותו שבוע.</p></li>
         <li><h3>בוקר שמתחיל בהודעה</h3><p>"הזר בדרך", ואחריה תמונה שלו מחכה לכם ליד הדלת.</p></li>
