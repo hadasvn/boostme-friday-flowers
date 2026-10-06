@@ -44,6 +44,7 @@
   :focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; border-radius: 8px; }
   .skip { position: absolute; inset-inline-start: 12px; top: -60px; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 8px; z-index: 10; }
   .skip:focus { top: 12px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   /* Content sits on the right; the left side stays free for the bouquet window. */
   .wrap { width: min(1120px, 100% - 40px); margin-inline: auto; padding-left: var(--side); }
@@ -61,7 +62,8 @@
     border-radius: 150px 150px 24px 24px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
     box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
   }
-  .bouquet canvas { display: block; width: 100%; height: 100%; }
+  .bouquet canvas, .bouquet-mini canvas { display: block; width: 100%; height: 100%; }
+  .bouquet-mini { display: none; }
   .bouquet span {
     position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap;
     background: var(--paper); color: var(--ink); font-weight: 700; font-size: 15px; padding: 3px 14px; border-radius: 999px;
@@ -122,13 +124,19 @@
   footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: center; justify-content: space-between; }
   footer .brand { color: var(--ink); font-size: 21px; }
   footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
-  footer button { font: inherit; background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; }
+  footer button { font: inherit; background: none; border: 0; padding: 10px 4px; min-height: 44px; color: var(--ink); text-decoration: underline; cursor: pointer; }
   footer .small { flex-basis: 100%; font-size: 15px; }
 
   dialog { border: 0; border-radius: var(--radius); padding: 28px; max-width: min(440px, 100% - 40px); color: var(--ink); font: inherit; }
   dialog::backdrop { background: rgba(51, 34, 58, .55); }
   dialog h2 { font-size: 24px; margin-bottom: 10px; }
   dialog .btn { margin-top: 18px; font-size: 18px; padding: 10px 24px; }
+  dialog.long { max-width: min(660px, 100% - 32px); max-height: 88vh; overflow: auto; font-size: 17px; line-height: 1.6; }
+  dialog.long h3 { font-size: 19px; margin: 20px 0 4px; }
+  dialog.long ul { margin: 4px 0 0; padding-inline-start: 22px; }
+  dialog.long a { color: var(--rose); }
+  dialog.long .stamp { background: var(--butter); border-radius: 12px; padding: 10px 14px; font-weight: 700; margin-bottom: 14px; }
+  dialog.long .meta { color: var(--ink-soft); font-size: 15px; }
 
   @media (max-width: 900px) {
     body { font-size: 18px; }
@@ -138,11 +146,20 @@
     /* Small screens: the bouquet sits in the hero, large, under the button, and opens as it scrolls into view */
     header { padding-block: 16px; }
     .bouquet { position: static; transform: none; width: min(250px, 68%); margin: 44px auto 0; border-radius: 125px 125px 20px 20px; }
+    /* ...and once it has scrolled away, a small copy follows in the corner and keeps opening */
+    .bouquet-mini {
+      display: block; position: fixed; left: 10px; bottom: 10px; width: 70px; aspect-ratio: 9 / 16; z-index: 4; pointer-events: none;
+      border-radius: 35px 35px 10px 10px; overflow: hidden; background: #D8D6D3;
+      box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose), 0 10px 22px -8px rgba(51, 34, 58, .5);
+      opacity: 0; transform: translateY(16px); transition: opacity .3s, transform .3s;
+    }
+    .bouquet-mini.on { opacity: 1; transform: none; }
+    footer { padding-bottom: 150px; }
     .days, .points { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .btn { transition: none; }
+    .btn, .bouquet-mini { transition: none; }
   }
 </style>
 </head>
@@ -168,7 +185,7 @@
       <div class="cta">
         <a class="btn wa" href="#">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.8c0 2.3 1 4.4 2.7 6L4 22l4.6-1.9c1.1.3 2.2.5 3.4.5 5.5 0 10-3.9 10-8.8S17.5 3 12 3Z"/></svg>
-          מצטרפים בוואטסאפ
+          מצטרפים בוואטסאפ<span class="sr"> (נפתח בוואטסאפ, בחלון חדש)</span>
         </a>
         <small>120 ₪ לזר, כולל משלוח. בלי התחייבות.</small>
       </div>
@@ -176,6 +193,9 @@
            video), shown by the script below. Wide screens: fixed at the side. Small screens: large, right here in the hero. -->
       <div class="bouquet" aria-hidden="true">
         <canvas width="720" height="1280"></canvas>
+      </div>
+      <div class="bouquet-mini" aria-hidden="true">
+        <canvas width="360" height="640"></canvas>
       </div>
     </div>
   </section>
@@ -202,8 +222,15 @@
         <li><h3>הפתעה קטנה בכל שבוע</h3><p>אף פעם לא אותו זר. מה שהכי יפה אצל המגדלים באותו שבוע.</p></li>
         <li><h3>בוקר שמתחיל בהודעה</h3><p>"הזר בדרך", ואחריה תמונה שלו מחכה לכם ליד הדלת.</p></li>
         <li><h3>שבוע שלם של פריחה</h3><p>ניצנים שנפתחים על השולחן מיום ליום, עד השישי הבא.</p></li>
-        <li><span class="price">120 ₪</span><h3>לזר, כולל משלוח</h3><p>משלמים רק על זר שהגיע. נוסעים? מדלגים בהודעה עד רביעי בערב.</p></li>
+        <li><span class="price">120 ₪</span><h3>לזר, כולל משלוח</h3><p>בחודש של ארבעה ימי שישי זה 480 ₪. החיוב בסוף החודש, רק על זרים שהגיעו. נוסעים? מדלגים בהודעה עד רביעי בערב.</p></li>
       </ul>
+      <div class="cta">
+        <a class="btn wa" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.8c0 2.3 1 4.4 2.7 6L4 22l4.6-1.9c1.1.3 2.2.5 3.4.5 5.5 0 10-3.9 10-8.8S17.5 3 12 3Z"/></svg>
+          מצטרפים בוואטסאפ<span class="sr"> (נפתח בוואטסאפ, בחלון חדש)</span>
+        </a>
+        <small>בלי התחייבות. מפסיקים בהודעה.</small>
+      </div>
     </div>
   </section>
 
@@ -228,7 +255,7 @@
       <div class="cta">
         <a class="btn wa" href="#">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.8c0 2.3 1 4.4 2.7 6L4 22l4.6-1.9c1.1.3 2.2.5 3.4.5 5.5 0 10-3.9 10-8.8S17.5 3 12 3Z"/></svg>
-          מצטרפים בוואטסאפ
+          מצטרפים בוואטסאפ<span class="sr"> (נפתח בוואטסאפ, בחלון חדש)</span>
         </a>
       </div>
     </div>
@@ -241,19 +268,95 @@
   <div class="wrap">
     <span class="brand"><i aria-hidden="true"></i>שישי פורח</span>
     <nav aria-label="קישורי פוטר">
-      <button type="button" data-doc="הצהרת נגישות">הצהרת נגישות</button>
-      <button type="button" data-doc="מדיניות פרטיות">מדיניות פרטיות</button>
-      <button type="button" data-doc="תנאי שימוש">תנאי שימוש</button>
+      <button type="button" data-open="doc-a11y">הצהרת נגישות</button>
+      <button type="button" data-open="doc-privacy">מדיניות פרטיות</button>
+      <button type="button" data-open="doc-terms">תנאי שימוש</button>
     </nav>
     <p class="small">שישי פורח, כפר סבא · משלוחים ברעננה, בכפר סבא, בהוד השרון ובהרצליה</p>
     <p class="small">© 2026 שישי פורח · דף קונספט לדוגמה של Boost Me</p>
   </div>
 </footer>
 
-<dialog id="doc" aria-labelledby="doc-title">
-  <h2 id="doc-title"></h2>
-  <p>זה דף קונספט, ולכן אין כאן מסמך אמיתי. בדף של עסק אמיתי הקישור הזה מוביל למסמך מלא.</p>
-  <form method="dialog"><button class="btn">הבנתי</button></form>
+<dialog id="doc-a11y" class="long" aria-labelledby="t-a11y">
+  <h2 id="t-a11y">הצהרת נגישות</h2>
+  <p class="meta">עדכון אחרון: 6 באוקטובר 2026</p>
+  <p>שישי פורח הוא דף קונספט לדוגמה. ההצהרה כתובה כפי שהיא נכתבת לאתר של עסק אמיתי, והיא מתארת את הדף הזה בלבד.</p>
+  <h3>רמת ההתאמה</h3>
+  <p>הדף נבנה במטרה לעמוד בתקן הישראלי ת"י 5568, המבוסס על הנחיות WCAG 2.0, ברמה AA.</p>
+  <h3>מה הותאם</h3>
+  <ul>
+    <li>שפת הדף מוגדרת עברית, מימין לשמאל, עם מבנה כותרות מסודר.</li>
+    <li>אפשר להגיע לכל כפתור וקישור במקלדת, עם סימון מיקוד ברור וקישור דילוג לתוכן הראשי.</li>
+    <li>הניגודיות בין הטקסט לרקע נמדדה ועומדת ביחס של 4.5:1 לפחות.</li>
+    <li>הזר שנפתח בגלילה הוא קישוט בלבד, והוא מוסתר מקוראי מסך.</li>
+    <li>למי שהגדיר במכשיר "הפחתת תנועה", הזר מוצג פתוח ואינו נע.</li>
+    <li>הכפתורים והקישורים גדולים דיים ללחיצה באצבע.</li>
+  </ul>
+  <h3>מה נבדק ואיך</h3>
+  <p>בדיקת קוד ידנית, מדידת ניגודיות על הדף כפי שהוא מוצג, בדיקת סדר המעבר במקלדת, ובדיקה אוטומטית בדפדפן Chromium ברוחב מחשב וברוחב טלפון. הדף לא נבדק עם קורא מסך ולא נבדק על ידי אנשים עם מוגבלות.</p>
+  <h3>מגבלות ידועות</h3>
+  <ul>
+    <li>כפתור ההצטרפות פותח את וואטסאפ, שירות חיצוני שנגישותו אינה בשליטתנו.</li>
+    <li>הפונטים נטענים משירות חיצוני.</li>
+  </ul>
+  <h3>רכז נגישות</h3>
+  <p>לא מונה רכז נגישות.</p>
+  <h3>נתקלתם בבעיה?</h3>
+  <p>אפשר לכתוב אל <a href="mailto:shalom@shishi-poreach.example">shalom@shishi-poreach.example</a>. נחזור בתוך 14 ימים.</p>
+  <form method="dialog"><button class="btn">סגירה</button></form>
+</dialog>
+
+<dialog id="doc-privacy" class="long" aria-labelledby="t-privacy">
+  <h2 id="t-privacy">מדיניות פרטיות</h2>
+  <p class="meta">עדכון אחרון: 6 באוקטובר 2026</p>
+  <p>שישי פורח הוא דף קונספט לדוגמה. המדיניות מתארת מה הדף הזה עושה בפועל, וכתובה כפי שהיא נכתבת לאתר של עסק אמיתי.</p>
+  <h3>מה הדף אוסף</h3>
+  <p>כלום. אין בדף טפסים, אין קובצי עוגיות (Cookies), אין אחסון מקומי בדפדפן ואין כלי מדידה או פרסום.</p>
+  <h3>מה עובר לגורמים אחרים</h3>
+  <ul>
+    <li><strong>אחסון הדף:</strong> הדף מאוחסן ב-GitHub Pages. כמו בכל אתר, השרת שמגיש את הדף מקבל את כתובת ה-IP ואת פרטי הדפדפן, וספק האחסון עשוי לרשום אותם. השרתים נמצאים מחוץ לישראל.</li>
+    <li><strong>פונטים:</strong> הפונטים נטענים מ-Google Fonts, ולכן גם שרתי Google מקבלים את כתובת ה-IP ואת פרטי הדפדפן. גם הם מחוץ לישראל.</li>
+    <li><strong>וואטסאפ:</strong> לחיצה על כפתור ההצטרפות פותחת את וואטסאפ עם הודעה מוכנה. הדף עצמו לא מעביר לוואטסאפ שום פרט. מה שתשלחו שם נשלח דרך Meta, לפי מדיניות הפרטיות שלה.</li>
+  </ul>
+  <h3>בעסק אמיתי</h3>
+  <p>בעסק שפועל באמת, ההודעה בוואטסאפ מגיעה לבעלת העסק, והיא שומרת את השם, מספר הטלפון וכתובת המשלוח כדי לספק את המנוי ולחייב עליו. כאן, בדף קונספט, אין מי שמקבל את ההודעה.</p>
+  <h3>הזכויות שלכם</h3>
+  <p>לפי חוק הגנת הפרטיות אפשר לבקש לעיין במידע שנשמר עליכם ולבקש לתקן אותו. מכיוון שהדף לא שומר מידע, אין מה למסור, אבל אפשר לפנות בכל שאלה.</p>
+  <h3>עוגיות</h3>
+  <p>הדף לא משתמש בעוגיות, ולכן אין בו חלון הסכמה לעוגיות.</p>
+  <h3>ממונה הגנת פרטיות</h3>
+  <p>לא מונה ממונה הגנת פרטיות.</p>
+  <h3>יצירת קשר</h3>
+  <p><a href="mailto:shalom@shishi-poreach.example">shalom@shishi-poreach.example</a>. נחזור בתוך 14 ימים.</p>
+  <form method="dialog"><button class="btn">סגירה</button></form>
+</dialog>
+
+<dialog id="doc-terms" class="long" aria-labelledby="t-terms">
+  <p class="stamp">טיוטה, טרם נבדקה משפטית. זו טיוטת עבודה ולא ייעוץ משפטי.</p>
+  <h2 id="t-terms">תנאי שימוש</h2>
+  <p class="meta">עדכון אחרון: 6 באוקטובר 2026</p>
+  <p>שישי פורח הוא דף קונספט לדוגמה. התנאים כתובים כפי שהם נכתבים לעסק אמיתי מהסוג הזה, אבל אין עסק שמתחייב בהם.</p>
+  <h3>1. השירות</h3>
+  <p>מנוי פרחים שבועי: זר אחד בכל יום שישי, במסירה עד הדלת עד השעה 13:00, ברעננה, בכפר סבא, בהוד השרון ובהרצליה. המחיר 120 ₪ לזר, כולל משלוח. החיוב נעשה בסוף כל חודש, רק על זרים שנמסרו. ההצטרפות נעשית בהודעת וואטסאפ.</p>
+  <h3>2. שימוש בדף</h3>
+  <p>מותר לעיין בדף ולהשתמש בו כדי להצטרף למנוי. אסור להעתיק ממנו תוכן לשימוש מסחרי, לשבש את פעולתו או להשתמש בו לכל מטרה שאינה חוקית.</p>
+  <h3>3. דילוג, ביטול והחזרות</h3>
+  <ul>
+    <li><strong>דילוג על שבוע:</strong> בהודעה עד יום רביעי בערב. על שבוע שדילגתם עליו אין חיוב.</li>
+    <li><strong>ביטול המנוי:</strong> המנוי הוא עסקה מתמשכת, ואפשר לבטל אותו בכל עת בהודעת וואטסאפ או במייל. לפי חוק הגנת הצרכן, הביטול נכנס לתוקף בתוך שלושה ימי עסקים מקבלת ההודעה. אין דמי ביטול.</li>
+    <li><strong>זר שכבר נמסר:</strong> פרחים הם מוצר מתכלה, ולפי חוק הגנת הצרכן אין זכות לבטל רכישה של מוצר כזה ולהחזירו. במקום זה חלה ההבטחה שלנו: אם הזר לא החזיק חמישה ימים, הזר הבא ניתן בלי חיוב.</li>
+  </ul>
+  <h3>4. אחריות</h3>
+  <p>אנחנו אחראים לספק את הזר במועד ובמצב טוב. איננו אחראים לנזק שנגרם מחוץ לשליטתנו, למשל זר שנשאר שעות בשמש אחרי המסירה. שום דבר בתנאים האלה אינו גורע מזכויות שהחוק מעניק לצרכנים ושאי אפשר לוותר עליהן.</p>
+  <h3>5. קניין רוחני</h3>
+  <p>הטקסטים, העיצוב והתמונות בדף שייכים לבעלי הדף או שנעשה בהם שימוש ברישיון. אין להעתיק או להפיץ אותם בלי רשות.</p>
+  <h3>6. דין וסמכות שיפוט</h3>
+  <p>על התנאים חל הדין הישראלי, וסמכות השיפוט נתונה לבתי המשפט המוסמכים בישראל.</p>
+  <h3>7. יצירת קשר</h3>
+  <p><a href="mailto:shalom@shishi-poreach.example">shalom@shishi-poreach.example</a></p>
+  <h3>8. עדכון התנאים</h3>
+  <p>התנאים עשויים להתעדכן. התאריך בראש המסמך מציין מתי עודכנו לאחרונה, ושינוי מהותי יימסר למנויים בהודעה לפני שייכנס לתוקף.</p>
+  <form method="dialog"><button class="btn">סגירה</button></form>
 </dialog>
 
 <script>
@@ -265,45 +368,39 @@
     a.rel = 'noopener';
   });
 
-  const doc = document.getElementById('doc');
-  document.querySelectorAll('footer [data-doc]').forEach(b => b.addEventListener('click', () => {
-    document.getElementById('doc-title').textContent = b.dataset.doc;
-    doc.showModal();
+  document.querySelectorAll('footer [data-open]').forEach(b => b.addEventListener('click', () => {
+    const d = document.getElementById(b.dataset.open);
+    d.showModal();
+    d.scrollTop = 0;
   }));
 
   // The bouquet opens with the scroll: 45 frames of the opening, laid out as a 9x5 sprite sheet.
-  // The scroll position picks the frame, so scrolling down opens the bouquet and scrolling back up closes it.
+  // How far the page has been scrolled picks the frame, so scrolling down opens the bouquet and scrolling back up closes it.
   const FRAMES = 45, COLS = 9, TILE_W = 360, TILE_H = 640;
-  const canvas = document.querySelector('.bouquet canvas'), ctx = canvas.getContext('2d');
+  const canvases = [...document.querySelectorAll('.bouquet canvas, .bouquet-mini canvas')];
+  const mini = document.querySelector('.bouquet-mini');
   const sheet = new Image();
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const clamp = v => Math.max(0, Math.min(1, v));
   const small = matchMedia('(max-width: 900px)');
+  const clamp = v => Math.max(0, Math.min(1, v));
   let shown = -1;
-  function progress() {
-    if (still) return 1;
-    if (small.matches) {
-      // small screens: the bouquet is part of the page, so it opens while it travels up the screen
-      const top = canvas.getBoundingClientRect().top;
-      return clamp((innerHeight - top) / (innerHeight * 0.88));
-    }
-    // wide screens: the bouquet is fixed at the side and is fully open by the middle of the page
-    const max = document.documentElement.scrollHeight - innerHeight;
-    return clamp((max > 0 ? scrollY / max : 1) / 0.55);
-  }
   function draw() {
     if (!sheet.complete || !sheet.naturalWidth) return;
-    const frame = Math.round(progress() * (FRAMES - 1));
+    const max = document.documentElement.scrollHeight - innerHeight;
+    // wide screens: fully open by the middle of the page. Small screens: a little later, so the corner copy keeps opening.
+    const t = still ? 1 : clamp((max > 0 ? scrollY / max : 1) / (small.matches ? 0.7 : 0.55));
+    const frame = Math.round(t * (FRAMES - 1));
     if (frame === shown) return;
     shown = frame;
-    ctx.drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, canvas.width, canvas.height);
+    for (const c of canvases) c.getContext('2d').drawImage(sheet, (frame % COLS) * TILE_W, Math.floor(frame / COLS) * TILE_H, TILE_W, TILE_H, 0, 0, c.width, c.height);
   }
+  // the corner copy shows only while the large bouquet is off screen
+  new IntersectionObserver(([e]) => mini.classList.toggle('on', !e.isIntersecting)).observe(document.querySelector('.bouquet'));
   sheet.onload = draw;
   sheet.src = 'bloom-video.webp';
   let queued = false;
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } }, { passive: true });
-  addEventListener('resize', draw);
-  small.addEventListener('change', () => { shown = -1; draw(); });
+  addEventListener('resize', () => { shown = -1; draw(); });
 </script>
 </body>
 </html>
