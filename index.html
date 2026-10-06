@@ -58,7 +58,7 @@
   /* The bouquet window: a real photo of a bouquet that changes with each section, as the bouquet changes each week */
   .bouquet {
     position: fixed; left: max(24px, calc(50% - 560px)); top: 50%; transform: translateY(-50%);
-    width: 300px; aspect-ratio: 9 / 16; pointer-events: none; z-index: 1;
+    width: 300px; aspect-ratio: 9 / 16; pointer-events: none; z-index: 20;
     border-radius: 150px 150px 24px 24px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
     box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
   }
@@ -160,7 +160,7 @@
     header { padding-block: 16px; }
     .bouquet { display: none; }
     .bouquet-mini {
-      display: block; position: fixed; left: 10px; bottom: 10px; width: 78px; aspect-ratio: 9 / 16; z-index: 4; pointer-events: none;
+      display: block; position: fixed; left: 10px; bottom: 10px; width: 78px; aspect-ratio: 9 / 16; z-index: 20; pointer-events: none;
       border-radius: 39px 39px 10px 10px; overflow: hidden; background: #D8D6D3 url("bloom-first.webp") center / cover no-repeat;
       box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose), 0 10px 22px -8px rgba(51, 34, 58, .5);
     }
@@ -188,6 +188,16 @@
 <a class="skip" href="#main">דילוג לתוכן הראשי</a>
 <p class="concept">דף קונספט לדוגמה. העסק, המחיר, ההבטחות וההמלצות בדויים, והזר והאיורים נוצרו ב-AI.</p>
 
+<!-- Decorative bouquet: 45 frames of a bouquet opening (bloom-video.webp, a 9x5 sprite sheet cut from an AI-generated video),
+     shown by the script at the end. Wide screens: the large one, fixed at the side. Small screens: the small one, floating in the corner.
+     Both sit at the top level of the page, above every section. -->
+<div class="bouquet" aria-hidden="true">
+  <canvas width="720" height="1280"></canvas>
+</div>
+<div class="bouquet-mini" aria-hidden="true">
+  <canvas width="360" height="640"></canvas>
+</div>
+
 <header>
   <img class="wm" src="watercolor-bouquet.webp" alt="" aria-hidden="true" width="720" height="696">
   <div class="wrap">
@@ -209,14 +219,6 @@
           מצטרפים בוואטסאפ<span class="sr"> (נפתח בוואטסאפ, בחלון חדש)</span>
         </a>
         <small>120 ₪ לזר, כולל משלוח. בלי התחייבות.</small>
-      </div>
-      <!-- Decorative bouquet: 45 frames of a bouquet opening (bloom-video.webp, a 9x5 sprite sheet cut from an AI-generated
-           video), shown by the script below. Wide screens: the large one, fixed at the side. Small screens: the small one, floating in the corner. -->
-      <div class="bouquet" aria-hidden="true">
-        <canvas width="720" height="1280"></canvas>
-      </div>
-      <div class="bouquet-mini" aria-hidden="true">
-        <canvas width="360" height="640"></canvas>
       </div>
     </div>
   </section>
