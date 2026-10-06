@@ -63,7 +63,7 @@
     box-shadow: 0 0 0 8px var(--paper), 0 0 0 10px var(--rose), 0 30px 50px -26px rgba(51, 34, 58, .45);
   }
   .bouquet canvas, .bouquet-mini canvas { display: block; width: 100%; height: 100%; }
-  .bouquet-mini, .product { display: none; }
+  .bouquet-mini, .stem, .product { display: none; }
   .bouquet span {
     position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap;
     background: var(--paper); color: var(--ink); font-weight: 700; font-size: 15px; padding: 3px 14px; border-radius: 999px;
@@ -155,8 +155,13 @@
     .wrap { padding-left: 0; }
     section { padding-block: 52px; }
     .hero { padding-block: 24px 60px; }
-    /* Small screens: a single flower instead of the bouquet, in a round frame in the top-left corner.
-       It is there from the first screen to the last and opens as the page scrolls. */
+    /* Small screens: a single flower instead of the bouquet, growing up the free strip on the left.
+       It starts as a bud at the bottom of the screen and climbs to the top as the page is read,
+       opening on the way, with its stem growing under it. Positions are set by the script. */
+    .stem {
+      display: block; position: fixed; left: 36px; top: 0; bottom: 0; width: 28px; z-index: 19; pointer-events: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='180'%3E%3Cpath d='M14 0V180' stroke='%232F6B4F' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M14 58C22 56 27 49 27 41C19 42 14 48 14 58Z' fill='%233E8A63'/%3E%3Cpath d='M14 148C6 146 1 139 1 131C9 132 14 138 14 148Z' fill='%232F6B4F'/%3E%3C/svg%3E") repeat-y center bottom; clip-path: inset(100% 0 0 0);
+    }
     header { padding-block: 16px; }
     .bouquet { display: none; }
     /* the product itself, in the same arched frame the bouquet has on wide screens */
@@ -176,6 +181,7 @@
     .btn { font-size: 19px; padding: 14px 22px; white-space: nowrap; }
     @media (max-width: 350px) {
       .bouquet-mini { width: 66px; left: 6px; }
+      .stem { left: 25px; }
       main > section .wrap, footer .wrap { padding-left: 60px; }
       .points li, .quotes li, .days li, .promise { padding-inline: 16px; }
       .btn { font-size: 17px; padding: 13px 16px; }
@@ -204,11 +210,12 @@
 
 <!-- Decorative bouquet: 45 frames of a bouquet opening (bloom-video.webp, a 9x5 sprite sheet cut from an AI-generated video),
      shown by the script at the end. Wide screens: the bouquet, fixed at the side. Small screens: a single flower opening
-     (bloom-flower.webp, from a second AI-generated video), in a round frame in the top-left corner.
+     (bloom-flower.webp, from a second AI-generated video), in a round frame that climbs the left edge of the screen on a growing stem.
      Both sit at the top level of the page, above every section. -->
 <div class="bouquet" aria-hidden="true">
   <canvas width="720" height="1280"></canvas>
 </div>
+<div class="stem" aria-hidden="true"></div>
 <div class="bouquet-mini" aria-hidden="true">
   <canvas width="480" height="480"></canvas>
 </div>
@@ -422,7 +429,7 @@
   const FRAMES = 45, COLS = 9;
   const SETS = {
     wide: { src: 'bloom-video.webp', canvas: document.querySelector('.bouquet canvas'), w: 360, h: 640, full: 0.55 },
-    small: { src: 'bloom-flower.webp', canvas: document.querySelector('.bouquet-mini canvas'), w: 360, h: 360, full: 0.7 }
+    small: { src: 'bloom-flower.webp', canvas: document.querySelector('.bouquet-mini canvas'), w: 360, h: 360, full: 0.9 }
   };
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = matchMedia('(max-width: 900px)');
@@ -440,12 +447,17 @@
     const c = set.canvas;
     c.getContext('2d').drawImage(set.sheet, (frame % COLS) * set.w, Math.floor(frame / COLS) * set.h, set.w, set.h, 0, 0, c.width, c.height);
   }
-  // Small screens: the flower sits in the top-left corner. At the very top of the page it waits just under
-  // the notice strip, and rides up with it to the top of the screen.
-  const flower = document.querySelector('.bouquet-mini'), strip = document.querySelector('.concept');
+  // Small screens: the flower grows up the left edge. Reading progress moves it from the bottom of the screen
+  // to the top, and the stem is revealed under it.
+  const flower = document.querySelector('.bouquet-mini'), stem = document.querySelector('.stem');
   function place() {
     if (!small.matches) { flower.style.transform = ''; return; }
-    flower.style.transform = 'translateY(' + Math.max(10, strip.getBoundingClientRect().bottom + 8).toFixed(1) + 'px)';
+    const size = flower.offsetWidth, low = innerHeight - 10 - size, high = 10;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const p = clamp((max > 0 ? scrollY / max : 1) / 0.92); // at the top a little before the very end
+    const y = low + (high - low) * p;
+    flower.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+    stem.style.clipPath = 'inset(' + (y + size * 0.75).toFixed(1) + 'px 0 0 0)';
   }
   let queued = false;
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; place(); draw(); }); } }, { passive: true });
