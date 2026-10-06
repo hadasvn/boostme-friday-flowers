@@ -81,6 +81,15 @@
   /* in the document windows it is a plain background that scrolls away with the text */
   dialog.long { background: #fff url("watercolor-bouquet-pale.webp") no-repeat left -48px top -52px / 190px auto local; }
 
+  /* The small flower on small screens rises as the page scrolls. --k goes from 0 to 1 over the first 520px. */
+  @property --k { syntax: '<number>'; inherits: false; initial-value: 0; }
+  @keyframes flower-rise { from { --k: 0; } to { --k: 1; } }
+  @supports (animation-timeline: scroll()) {
+    @media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+      .bouquet-mini { animation: flower-rise ease-in-out both; animation-timeline: scroll(root); animation-range: 0 520px; }
+    }
+  }
+
   /* 1. Hero */
   .hero { padding-block: 36px 84px; }
   .tag { display: inline-block; background: var(--butter); border-radius: 999px; padding: 5px 18px; font-weight: 700; font-size: 16px; margin-bottom: 18px; }
@@ -169,8 +178,8 @@
       border-radius: 95px 95px 18px 18px; box-shadow: 0 0 0 5px var(--paper), 0 0 0 7px var(--rose), 0 18px 30px -18px rgba(51, 34, 58, .45);
     }
     .bouquet-mini {
-      display: block; position: fixed; left: 8px; top: 0; width: 84px; aspect-ratio: 1; z-index: 20; pointer-events: none;
-      transform: translateY(10px); will-change: transform;
+      display: block; position: fixed; left: 8px; bottom: 10px; --s: 84px; --k: 0; width: var(--s); aspect-ratio: 1; z-index: 20; pointer-events: none;
+      transform: translateY(calc(var(--k) * (10px + var(--s) / 2 - 50svh))); will-change: transform;
       border-radius: 50%; overflow: hidden; background: #DFDBD5 url("bloom-flower-first.webp") center / cover no-repeat;
       box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--rose), 0 10px 22px -8px rgba(51, 34, 58, .5);
     }
@@ -178,7 +187,7 @@
     main > section:not(.hero) .wrap, footer .wrap { padding-left: 80px; }
     .btn { font-size: 19px; padding: 14px 22px; white-space: nowrap; }
     @media (max-width: 350px) {
-      .bouquet-mini { width: 66px; left: 6px; }
+      .bouquet-mini { --s: 66px; left: 6px; }
       main > section:not(.hero) .wrap, footer .wrap { padding-left: 60px; }
       .points li, .quotes li, .days li, .promise { padding-inline: 16px; }
       .btn { font-size: 17px; padding: 13px 16px; }
@@ -447,14 +456,16 @@
     const c = set.canvas;
     c.getContext('2d').drawImage(set.sheet, (frame % COLS) * set.w, Math.floor(frame / COLS) * set.h, set.w, set.h, 0, 0, c.width, c.height);
   }
-  // Small screens: the flower waits at the bottom-left on the first screen, and over the first stretch of
-  // scrolling it rises to the middle of the left edge, where it stays.
+  // Small screens: the flower waits at the bottom-left on the first screen, and over the first 520px of scrolling it rises
+  // to the middle of the left edge. Browsers that can tie an animation to the scroll do it in CSS (see above);
+  // for the others the script sets the same number. With reduced motion the flower simply rests in the middle.
   const flower = document.querySelector('.bouquet-mini');
+  const cssDriven = CSS.supports('animation-timeline: scroll()') && !still;
   function place() {
-    if (!small.matches) { flower.style.transform = ''; return; }
-    const size = flower.offsetWidth, low = innerHeight - 10 - size, mid = (innerHeight - size) / 2;
-    let k = still ? 1 : clamp(scrollY / (innerHeight * 0.6)); k = k * k * (3 - 2 * k); // ease in and out; with reduced motion it just rests in the middle
-    flower.style.transform = 'translateY(' + (low + (mid - low) * k).toFixed(1) + 'px)';
+    if (!small.matches) { flower.style.removeProperty('--k'); return; }
+    if (cssDriven) return;
+    let k = still ? 1 : clamp(scrollY / 520); k = k * k * (3 - 2 * k);
+    flower.style.setProperty('--k', k.toFixed(3));
   }
   let queued = false;
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; place(); draw(); }); } }, { passive: true });
