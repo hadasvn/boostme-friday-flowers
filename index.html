@@ -77,7 +77,20 @@
   .who .wm { width: 330px; right: -100px; bottom: -110px; transform: rotate(14deg); }
   .proof .wm { width: 350px; right: -120px; top: -140px; transform: rotate(-18deg) scaleX(-1); }
   footer .wm { width: 230px; right: -64px; bottom: -78px; transform: rotate(10deg); opacity: .3; }
+  /* the header watermark: on wide screens it peeks in from the top-right corner, behind the brand name,
+     fading out toward the bottom and the left so that nothing is cut off with a hard line */
   header .wm { display: none; }
+  header .wrap { position: relative; z-index: 1; }
+  @media (min-width: 901px) {
+    header { position: relative; overflow: hidden; }
+    header .wm {
+      display: block; width: 300px; right: -70px; top: -88px; transform: rotate(14deg);
+      -webkit-mask-image: linear-gradient(to bottom, #000 18%, transparent 58%), linear-gradient(to left, #000 55%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-image: linear-gradient(to bottom, #000 18%, transparent 58%), linear-gradient(to left, #000 55%, transparent 100%);
+      mask-composite: intersect;
+    }
+  }
   /* in the document windows it is a plain background that scrolls away with the text */
   dialog.long { background: #fff url("watercolor-bouquet-pale.webp") no-repeat left -48px top -52px / 190px auto local; }
 
